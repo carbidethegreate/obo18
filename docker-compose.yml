@@ -1,0 +1,22 @@
+# OnlyFans Automation Manager – local dev stack
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ofuser
+      POSTGRES_PASSWORD: ofpass
+      POSTGRES_DB: ofdb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:                # host-port : container-port
+      - "5432:5432"
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgres://ofuser:ofpass@db:5432/ofdb
+    depends_on:
+      - db
+
+volumes:
+  db_data:

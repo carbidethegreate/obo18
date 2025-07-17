@@ -103,13 +103,14 @@ app.get('/api/auth/:id', async (req, res) => {
     res.status(500).json({ error: 'auth poll failed' });
   }
 });
-app.get('/api/profile-visitors', async (req,res)=>{
-  try{
-    const acct=await getCurrentAccount()
-    const data=await safeGET(`/api/${acct.id}/statistics/reach/profile-visitors`)
-    res.json({count:data.data?.count||0})
-  }catch(e){res.status(500).json({error:'fail'})}
-})
+// Duplicate endpoint removed. Use the withAccount version below.
+// app.get('/api/profile-visitors', async (req,res)=>{
+//   try{
+//     const acct=await getCurrentAccount()
+//     const data=await safeGET(`/api/${acct.id}/statistics/reach/profile-visitors`)
+//     res.json({count:data.data?.count||0})
+//   }catch(e){res.status(500).json({error:'fail'})}
+// })
 app.post('/api/auth/:id/2fa', async (req, res) => {
   try {
     const { code } = req.body;
@@ -322,7 +323,7 @@ app.get('/api/experiments', async (_, res) => {
 
 app.get('/api/profile-visitors', withAccount(async (_, res, acct) => {
   const data = await safeGET(`/api/${acct}/statistics/reach/profile-visitors`);
-  res.json(data);
+  res.json({ count: data.data?.count || 0 });
 }));
 
 // GDPR export & delete
@@ -455,4 +456,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-/*  End of File – Last modified 2025-07-17 */
+/*  End of File – Last modified 2025-07-19 */

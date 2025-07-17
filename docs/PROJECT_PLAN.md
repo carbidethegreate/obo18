@@ -627,3 +627,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-17: Added ActivityLog.vue component to display sync log in UI.
 - 2025-07-17: Integrated DmComposer and MassBlast components into MessagingDashboard.
 - 2025-07-17: Embedded PostManager and QueueView in ContentDashboard for content scheduling.
+- 2025-07-19: Fixed profile visitors analytics endpoint to return proper count.

@@ -253,7 +253,7 @@ app.delete('/api/vault/lists/:id', withAccount(async (req, res, acct) => {
 app.get('/api/ltv', async (_, res) => {
   try {
     const result = await query('SELECT * FROM ltv_view');
-    res.json(result.rows);
+    res.json({ rows: result.rows });
   } catch {
     res.status(500).json({ error: 'ltv fetch failed' });
   }
@@ -456,4 +456,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-/*  End of File – Last modified 2025-07-19 */
+/*  End of File – Last modified 2025-07-20 */

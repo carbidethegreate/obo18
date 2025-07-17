@@ -122,9 +122,10 @@ app.post('/api/auth/:id/2fa', async (req, res) => {
 //
 // 7. Data sync endpoints
 //
-app.post('/api/sync', async (_, res) => {
+app.post('/api/sync', async (req, res) => {
   try {
-    await runFullSync();
+    const max = req.query.max ? Number(req.query.max) : undefined;
+    await runFullSync(max);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'sync failed' });
@@ -449,4 +450,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-/*  End of File – Last modified 2025-07-15 */  
+/*  End of File – Last modified 2025-07-17 */

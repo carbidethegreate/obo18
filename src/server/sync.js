@@ -30,7 +30,7 @@ async function upsertFan(fan, status) {
 }
 
 // 1. Master Sync
-export async function runFullSync() {
+export async function runFullSync(max) {
   /* 1.1 Fetch Fans */
   const accountRes = await safeGET('/api/accounts');
   const account = accountRes.data[0];
@@ -41,13 +41,20 @@ export async function runFullSync() {
   const acctId = account.id;
   const actives = await safeGET(`/api/${acctId}/fans/active?limit=50&offset=0`);
   const expired = await safeGET(`/api/${acctId}/fans/expired?limit=50&offset=0`);
-  for (const fan of [...actives.data, ...expired.data]) {
-    await upsertFan(fan, actives.data.includes(fan) ? 'active' : 'expired');
+  const activeList = actives.data;
+  const expiredList = expired.data;
+  let fans = [...activeList, ...expiredList];
+  if (typeof max === 'number') fans = fans.slice(0, max);
+  const activeIds = new Set(activeList.map(f => f.id));
+  const fanIds = new Set(fans.map(f => f.id));
+  for (const fan of fans) {
+    await upsertFan(fan, activeIds.has(fan.id) ? 'active' : 'expired');
   }
 
   /* 1.2 Fetch Chats */
   const chatsRes = await safeGET(`/api/${acctId}/chats`);
   for (const chat of chatsRes.data) {
+    if (max && !fanIds.has(chat.id)) continue;
     const msgs = await safeGET(`/api/${acctId}/chats/${chat.id}/messages?limit=25&order=asc`);
     for (const m of msgs.data) {
       await query(
@@ -71,7 +78,7 @@ export async function runFullSync() {
     );
   }
   /* 1.4 Build Characters */
-  for (const fan of [...actives.data, ...expired.data]) {
+  for (const fan of fans) {
     const msgs = await query('SELECT text FROM messages WHERE fan_id=$1 ORDER BY created_at DESC LIMIT 30', [fan.id]);
     const purchases = await query('SELECT type, amount FROM transactions WHERE fan_id=$1 ORDER BY created_at DESC LIMIT 10', [fan.id]);
     const profile = await buildCharacter(msgs.rows, purchases.rows);
@@ -130,4 +137,4 @@ export async function backfillMessages() {
   }
 }
 
-/*  End of File – Last modified 2025‑07‑06 */
+/*  End of File – Last modified 2025‑07‑17 */

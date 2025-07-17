@@ -252,6 +252,24 @@ app.get('/api/ltv', async (_, res) => {
   }
 });
 
+app.get('/api/fans', async (req, res) => {
+  try {
+    const limit = Number(req.query.limit) || 100;
+    const result = await query(
+      `SELECT fan_id, display_name, username, subscription_status,
+        COALESCE((SELECT SUM(amount) FROM transactions t WHERE t.fan_id=f.fan_id),0) AS spend_total,
+        COALESCE((SELECT COUNT(*) FROM messages m WHERE m.fan_id=f.fan_id),0) AS msg_total
+       FROM fans f
+       ORDER BY fan_id
+       LIMIT $1`,
+      [limit]
+    );
+    res.json({ rows: result.rows });
+  } catch {
+    res.status(500).json({ error: 'fans fetch failed' });
+  }
+});
+
 app.get('/api/settings', async (_, res) => {
   try {
     const rows = await query('SELECT key, value FROM settings');

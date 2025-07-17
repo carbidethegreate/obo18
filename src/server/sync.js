@@ -8,6 +8,7 @@ import { safeGET } from './api/onlyfansApi.js';
 import { query } from './db/db.js';
 import { pickDisplayName } from './utils/pickDisplayName.js';
 import { buildCharacter } from './utils/buildCharacter.js';
+import { logActivity } from './activityLog.js';
 
 function classifyPurchase(desc) {
   if (/tip/i.test(desc)) return 'tip';
@@ -31,6 +32,8 @@ async function upsertFan(fan, status) {
 
 // 1. Master Sync
 export async function runFullSync(max) {
+  logActivity('Starting full sync...');
+  const started = Date.now();
   /* 1.1 Fetch Fans */
   const accountRes = await safeGET('/api/accounts');
   const account = accountRes.data[0];
@@ -43,6 +46,7 @@ export async function runFullSync(max) {
   const expired = await safeGET(`/api/${acctId}/fans/expired?limit=50&offset=0`);
   const activeList = actives.data;
   const expiredList = expired.data;
+  logActivity(`Fetched ${activeList.length} active fans, ${expiredList.length} expired fans`);
   let fans = [...activeList, ...expiredList];
   if (typeof max === 'number') fans = fans.slice(0, max);
   const activeIds = new Set(activeList.map(f => f.id));
@@ -53,6 +57,7 @@ export async function runFullSync(max) {
 
   /* 1.2 Fetch Chats */
   const chatsRes = await safeGET(`/api/${acctId}/chats`);
+  let msgCount = 0;
   for (const chat of chatsRes.data) {
     if (max && !fanIds.has(chat.id)) continue;
     const msgs = await safeGET(`/api/${acctId}/chats/${chat.id}/messages?limit=25&order=asc`);
@@ -63,11 +68,13 @@ export async function runFullSync(max) {
          ON CONFLICT (msg_id) DO NOTHING`,
         [m.id, chat.id, m.isOpened ? 'out' : 'in', m.text, m.created_at]
       );
+      msgCount++;
     }
   }
 
   /* 1.3 Fetch Purchases */
   const txnsRes = await safeGET(`/api/${acctId}/payouts/transactions?limit=50`);
+  let txnCount = 0;
   for (const t of txnsRes.data) {
     const type = classifyPurchase(t.description || '');
     await query(
@@ -76,7 +83,9 @@ export async function runFullSync(max) {
        ON CONFLICT (txn_id) DO NOTHING`,
       [t.id, t.user_id || null, type, t.amount, t.date]
     );
+    txnCount++;
   }
+  logActivity(`Inserted ${msgCount} messages, ${txnCount} transactions`);
   /* 1.4 Build Characters */
   for (const fan of fans) {
     const msgs = await query('SELECT text FROM messages WHERE fan_id=$1 ORDER BY created_at DESC LIMIT 30', [fan.id]);
@@ -84,9 +93,13 @@ export async function runFullSync(max) {
     const profile = await buildCharacter(msgs.rows, purchases.rows);
     await query('UPDATE fans SET character_profile=$1 WHERE fan_id=$2', [profile, fan.id]);
   }
+  const dur = Date.now() - started;
+  logActivity(`Sync complete (${dur} ms)`);
 }
 
 export async function refreshFan(fanId) {
+  logActivity(`Refreshing fan ${fanId}...`);
+  const started = Date.now();
   const accountRes = await safeGET('/api/accounts');
   const account = accountRes.data[0];
   if (!account) return;
@@ -112,9 +125,12 @@ export async function refreshFan(fanId) {
   const histTxns = await query('SELECT type, amount FROM transactions WHERE fan_id=$1 ORDER BY created_at DESC LIMIT 10', [fanId]);
   const profile = await buildCharacter(histMsgs.rows, histTxns.rows);
   await query('UPDATE fans SET updated_at=NOW(), character_profile=$2 WHERE fan_id=$1', [fanId, profile]);
+  logActivity(`Fan ${fanId} refreshed (${Date.now() - started} ms)`);
 }
 
 export async function backfillMessages() {
+  logActivity('Backfilling all messages...');
+  const started = Date.now();
   const accountRes = await safeGET('/api/accounts');
   const account = accountRes.data[0];
   if (!account) return;
@@ -135,6 +151,7 @@ export async function backfillMessages() {
       page++;
     }
   }
+  logActivity(`Backfill complete (${Date.now() - started} ms)`);
 }
 
 /*  End of File – Last modified 2025‑07‑17 */

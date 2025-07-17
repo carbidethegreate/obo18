@@ -19,6 +19,7 @@ import { runVariantExperiment } from './cron/experiment.js';
 import { startAuth, pollAuth, submitTwoFactor } from './api/auth.js';
 import { query } from './db/db.js';
 import { schema } from './graphql/schema.js';
+import { logActivity, getActivityLog } from './activityLog.js';
 
 //
 // 1. Ensure .env exists or exit
@@ -148,6 +149,10 @@ app.post('/api/messages/backfill', async (_, res) => {
   } catch {
     res.status(500).json({ error: 'backfill failed' });
   }
+});
+
+app.get('/api/log', (_, res) => {
+  res.json({ log: getActivityLog() });
 });
 
 //

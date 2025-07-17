@@ -623,3 +623,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-13: initDb now creates .env if missing and exits with instructions.
 - 2025-07-16: Added single-fan refresh button in SyncDashboard.vue.
 - 2025-07-17: Added optional ?max=N sync limit and Sync 10 button for testing.
+- 2025-07-17: Added in-memory sync activity log and /api/log endpoint.

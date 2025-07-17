@@ -5,8 +5,11 @@
 <template>
   <div>
     <h2 class="text-xl font-semibold mb-2">Data Sync</h2>
-    <button class="btn" @click="syncAll" :disabled="busy">
+    <button class="btn" @click="syncAll()" :disabled="busy">
       {{ busy ? 'Syncing…' : 'Sync All' }}
+    </button>
+    <button class="btn" style="margin-left:0.5rem" @click="syncAll(10)" :disabled="busy">
+      {{ busy ? 'Syncing…' : 'Sync 10' }}
     </button>
     <p v-if="status" class="mt-2">{{ status }}</p>
 
@@ -40,9 +43,10 @@
 import { ref, onMounted } from 'vue'
 const busy=ref(false), status=ref(''), fans=ref([]), refreshing=ref(null)
 
-async function syncAll(){
+async function syncAll(max){
   busy.value=true; status.value='Running sync…'
-  const r=await fetch('/api/sync',{method:'POST'})
+  const url=max?`/api/sync?max=${max}`:'/api/sync'
+  const r=await fetch(url,{method:'POST'})
   busy.value=false; status.value=r.ok?'✅ done':'❌ failed'
   if(r.ok) loadFans()
 }
@@ -64,4 +68,4 @@ onMounted(loadFans)
 .btn-sm{@apply px-2 py-1 text-sm}
 </style>
 
-<!-- End of File – Last modified 2025-07-16 -->
+<!-- End of File – Last modified 2025-07-17 -->

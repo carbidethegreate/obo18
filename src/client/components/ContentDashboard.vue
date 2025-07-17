@@ -6,14 +6,14 @@
   <div class="p-4">
     <h2 class="text-xl font-semibold mb-4">Content &amp; Queue</h2>
 
-    <p class="text-slate-500">
-      Post list / scheduler will appear here.
-    </p>
+    <PostManager class="mb-6" />
+    <QueueView />
   </div>
 </template>
 
 <script setup>
-/* empty for now */
+import PostManager from './PostManager.vue'
+import QueueView from './QueueView.vue'
 </script>
 
-<!-- End of File – Last modified 2025-07-16 -->
+<!-- End of File – Last modified 2025-07-17 -->

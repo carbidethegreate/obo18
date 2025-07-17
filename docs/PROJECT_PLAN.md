@@ -628,3 +628,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-17: Integrated DmComposer and MassBlast components into MessagingDashboard.
 - 2025-07-17: Embedded PostManager and QueueView in ContentDashboard for content scheduling.
 - 2025-07-19: Fixed profile visitors analytics endpoint to return proper count.
+- 2025-07-20: Updated LTV endpoint response and integrated LtvCard into analytics dashboard.

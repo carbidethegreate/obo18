@@ -621,3 +621,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-11: Added winston logging and feature toggles in cron jobs; documented production env.
 - 2025-07-12: Improved .env handling and environment checks before DB init.
 - 2025-07-13: initDb now creates .env if missing and exits with instructions.
+- 2025-07-16: Added single-fan refresh button in SyncDashboard.vue.

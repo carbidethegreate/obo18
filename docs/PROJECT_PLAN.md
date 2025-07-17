@@ -624,3 +624,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-16: Added single-fan refresh button in SyncDashboard.vue.
 - 2025-07-17: Added optional ?max=N sync limit and Sync 10 button for testing.
 - 2025-07-17: Added in-memory sync activity log and /api/log endpoint.
+- 2025-07-17: Added ActivityLog.vue component to display sync log in UI.

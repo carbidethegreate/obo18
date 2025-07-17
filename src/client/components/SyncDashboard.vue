@@ -36,11 +36,15 @@
           </tr>
         </tbody>
       </table>
+
+    <h3 class="text-lg font-semibold mt-6 mb-2">Activity Log</h3>
+    <ActivityLog />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import ActivityLog from './ActivityLog.vue'
 const busy=ref(false), status=ref(''), fans=ref([]), refreshing=ref(null)
 
 async function syncAll(max){

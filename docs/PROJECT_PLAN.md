@@ -633,3 +633,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-18: Added automated setup script and interactive instructions.
 - 2025-07-18: Added start-here.js quick-start script for folder and key setup.
 - 2025-07-25: Added startHere.js script for automated setup with database creation and server start.
+- 2025-08-05: Updated start-here.js to copy the project, create the database, run tests and launch the app in one step.

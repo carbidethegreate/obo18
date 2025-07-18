@@ -7,8 +7,19 @@ import path from 'path';
 import os from 'os';
 import readline from 'readline';
 import { execSync } from 'child_process';
-import sodium from 'libsodium-wrappers';
+import { createRequire } from 'module';
 import { sealString } from './src/server/security/secureKeys.js';
+
+const require = createRequire(import.meta.url);
+let sodium;
+try {
+  sodium = require('libsodium-wrappers');
+} catch (err) {
+  console.error(
+    'libsodium-wrappers is missing. Please run `npm install` or `npm test` first.'
+  );
+  process.exit(1);
+}
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -74,4 +85,4 @@ run().catch(err => {
   rl.close();
 });
 
-/*  End of File – Last modified 2025-08-05 */
+/*  End of File – Last modified 2025-08-06 */

@@ -16,7 +16,7 @@
 </head>
 <body>
   <h1>Project Setup & Usage</h1>
-  <section>
+  <section class="setup-step">
     <h2>Prerequisites (macOS)</h2>
     <p>Begin with Homebrew and a few basic tools.</p>
     <ol>
@@ -31,10 +31,19 @@ createdb ofdb</code></pre></li>
       <li>Clone this repository and enter the folder:<pre><code>git clone &lt;repo-url&gt;
 cd obo18</code></pre></li>
     </ol>
+    <button class="next-btn">Next</button>
   </section>
 
+  <section class="setup-step">
+    <h2>Automated Setup</h2>
+    <p>Place this entire project folder on your Desktop and name the folder <code>obo2</code>. Open a terminal in that directory.</p>
+    <p>Click "Run Setup" below (requires Node integration) or run <code>npm run setup</code> manually.</p>
+    <button onclick="runSetup()">Run Setup</button>
+    <pre id="setup-log"></pre>
+    <button class="next-btn">Next</button>
+  </section>
 
-  <section>
+  <section class="setup-step">
     <h2>Install Dependencies</h2>
     <ul>
       <li>Run <code>npm test</code> once to install dependencies and execute the test suite.</li>
@@ -43,9 +52,10 @@ cd obo18</code></pre></li>
       <li>Initialize the database with <code>npm run init-db</code>.</li>
       <li>Review required environment variables in <code>docs/PROD_ENV.md</code> before deploying.</li>
     </ul>
+    <button class="next-btn">Next</button>
   </section>
 
-  <section>
+  <section class="setup-step">
     <h2>Initialize & Start the App</h2>
     <p>Before launching the main server, start the admin dashboard to configure API keys:</p>
     <ul>
@@ -55,9 +65,10 @@ cd obo18</code></pre></li>
       <li>For future runs, you can start the app directly with <code>npm start</code>.</li>
     </ul>
     <p>Once the server is running, open <code>http://localhost:3000</code> in your browser to access the application.</p>
+    <button class="next-btn">Next</button>
   </section>
 
-  <section>
+  <section class="setup-step">
     <h2>Features Overview</h2>
     <ul>
       <li><b>Full Sync</b> (A-1) – Fetches all fans, messages, and purchases into the database.</li>
@@ -75,6 +86,27 @@ cd obo18</code></pre></li>
       <li><b>LTV Scoreboard</b> (F-1) – Leaderboard of top fans by lifetime value (requires nightly sync).</li>
     </ul>
   </section>
+
+  <script>
+    const steps = document.querySelectorAll('.setup-step');
+    const buttons = document.querySelectorAll('.next-btn');
+    buttons.forEach((btn, idx) => btn.addEventListener('click', () => {
+      steps[idx].style.display = 'none';
+      if (idx + 1 < steps.length) steps[idx + 1].style.display = 'block';
+    }));
+    steps.forEach((step, i) => { if (i > 0) step.style.display = 'none'; });
+    function runSetup() {
+      if (typeof require === 'undefined') {
+        alert('Run `npm run setup` in a terminal if this button does nothing.');
+        return;
+      }
+      const { exec } = require('child_process');
+      const log = document.getElementById('setup-log');
+      const child = exec('npm run setup');
+      child.stdout.on('data', d => log.textContent += d);
+      child.stderr.on('data', d => log.textContent += d);
+    }
+  </script>
 </body>
 </html>
-<!-- End of File – Last modified 2025-07-17 -->
+<!-- End of File – Last modified 2025-07-18 -->

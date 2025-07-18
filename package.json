@@ -11,7 +11,8 @@
     "test": "SKIP_DB=1 node test/run.js",
     "admin": "node src/server/admin.js",
     "db:init": "node scripts/initDb.js",
-    "init-db": "node scripts/initDb.js"
+    "init-db": "node scripts/initDb.js",
+    "setup": "node scripts/autoSetup.js"
   },
   "dependencies": {
     "@apollo/client": "^3.8.5",

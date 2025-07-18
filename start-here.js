@@ -1,11 +1,12 @@
 /*  OnlyFans Automation Manager
     File: start-here.js
-    Purpose: quick start script to create project folder and encrypted .env
+    Purpose: interactive one-click setup script
     Created: 2025-07-18 – v1.0 */
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import readline from 'readline';
+import { execSync } from 'child_process';
 import sodium from 'libsodium-wrappers';
 import { sealString } from './src/server/security/secureKeys.js';
 
@@ -16,14 +17,20 @@ function ask(q) {
 }
 
 async function run() {
-  const folder = await ask('Desktop folder name: ');
-  const dbName = await ask('Database name: ');
+  const folder = await ask('Project folder name on Desktop: ');
+  const dbName = await ask('PostgreSQL database name: ');
   const ofKey = await ask('OnlyFans API key: ');
   const oaKey = await ask('OpenAI API key: ');
 
-  const desktop = path.join(os.homedir(), 'Desktop');
-  const targetDir = path.join(desktop, folder);
+  const targetDir = path.join(os.homedir(), 'Desktop', folder);
   fs.mkdirSync(targetDir, { recursive: true });
+
+  console.log(`\nCopying project files to ${targetDir}...`);
+  fs.cpSync('.', targetDir, {
+    recursive: true,
+    dereference: true,
+    filter: src => !src.includes(`node_modules${path.sep}`)
+  });
 
   await sodium.ready;
   const { publicKey, privateKey } = sodium.crypto_box_keypair();
@@ -32,13 +39,33 @@ async function run() {
 
   const sealedOf = await sealString(ofKey, pubHex);
   const sealedOa = await sealString(oaKey, pubHex);
-  const dbUrl = `postgres://localhost:5432/${dbName}`;
 
-  const env = `DATABASE_URL=${dbUrl}\nKEY_PUBLIC=${pubHex}\nKEY_PRIVATE=${privHex}\nONLYFANS_API_KEY=${sealedOf}\nOPENAI_API_KEY=${sealedOa}\n`;
+  const env =
+    `DATABASE_URL=postgres://localhost:5432/${dbName}\n` +
+    `KEY_PUBLIC=${pubHex}\nKEY_PRIVATE=${privHex}\n` +
+    `ONLYFANS_API_KEY=${sealedOf}\nOPENAI_API_KEY=${sealedOa}\n`;
   fs.writeFileSync(path.join(targetDir, '.env'), env);
 
-  console.log('Setup complete.');
-  console.log(`Database URL: ${dbUrl}`);
+  fs.writeFileSync('.starthere.json', JSON.stringify({ folder: targetDir }, null, 2));
+
+  console.log('Creating PostgreSQL database (if needed)...');
+  try {
+    execSync(`createdb ${dbName}`, { stdio: 'inherit' });
+  } catch (e) {
+    console.warn('Database creation skipped or failed, continuing...');
+  }
+
+  console.log('Installing dependencies and running tests...');
+  execSync('npm test', { cwd: targetDir, stdio: 'inherit' });
+
+  console.log('Initializing the database...');
+  execSync('npm run init-db', { cwd: targetDir, stdio: 'inherit' });
+
+  console.log('Starting the application...');
+  execSync('npm start', { cwd: targetDir, stdio: 'inherit' });
+
+  console.log('\nSetup complete! Your OnlyFans Automation Manager is now running.');
+  console.log('Open http://localhost:3000 in your browser.');
   rl.close();
 }
 
@@ -47,4 +74,4 @@ run().catch(err => {
   rl.close();
 });
 
-/*  End of File – Last modified 2025-07-18 */
+/*  End of File – Last modified 2025-08-05 */

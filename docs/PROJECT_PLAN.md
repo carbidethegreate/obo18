@@ -630,3 +630,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-07-19: Fixed profile visitors analytics endpoint to return proper count.
 - 2025-07-20: Updated LTV endpoint response and integrated LtvCard into analytics dashboard.
 - 2025-07-22: Surfaced Top Fans card beside ProfileVisitors on Analytics page.
+- 2025-07-18: Added automated setup script and interactive instructions.

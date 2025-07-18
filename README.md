@@ -4,9 +4,10 @@ See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the complete project plan.
 For step-by-step setup instructions, open [docs/instructions.html](docs/instructions.html) in your browser.
 
 ## Setup
-1. Run `node start-here.js` from the repo root and follow the prompts. The script will copy the project to a Desktop folder, encrypt your API keys, create the database and launch the app.
-2. Once started, open `http://localhost:3000` in your browser.
-3. Or perform the manual steps:
+1. Run `npm test` once to install dependencies (or `npm install`).
+2. Run `node start-here.js` from the repo root and follow the prompts. The script will copy the project to a Desktop folder, encrypt your API keys, create the database and launch the app.
+3. Once started, open `http://localhost:3000` in your browser.
+4. Or perform the manual steps:
    - Copy `.env.example` to `.env` and edit `DATABASE_URL`.
    - Review required environment variables in docs/PROD_ENV.md
    - Run `npm run init-db` to create the database schema if needed.

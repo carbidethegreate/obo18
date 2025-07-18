@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<!-- OnlyFans Automation Manager
+     File: instructions.html
+     Purpose: step-by-step setup instructions
+     Created: 2025-07-06 – v1.0 -->
 <html>
 <head>
   <meta charset="utf-8"/>
@@ -12,13 +16,31 @@
 </head>
 <body>
   <h1>Project Setup & Usage</h1>
+  <section>
+    <h2>Prerequisites (macOS)</h2>
+    <p>Begin with Homebrew and a few basic tools.</p>
+    <ol>
+      <li>Install Homebrew:<br/>
+        <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
+      </li>
+      <li>Install Git, Node.js, PostgreSQL and libsodium:<br/>
+        <code>brew install git node postgresql libsodium</code>
+      </li>
+      <li>Start PostgreSQL and create a database named <code>ofdb</code>:<pre><code>brew services start postgresql
+createdb ofdb</code></pre></li>
+      <li>Clone this repository and enter the folder:<pre><code>git clone &lt;repo-url&gt;
+cd obo18</code></pre></li>
+    </ol>
+  </section>
+
 
   <section>
-    <h2>Install</h2>
+    <h2>Install Dependencies</h2>
     <ul>
       <li>Run <code>npm test</code> once to install dependencies and execute the test suite.</li>
       <li>If you prefer manual installation, use <code>npm install --legacy-peer-deps</code>.</li>
       <li>Copy <code>.env.example</code> to <code>.env</code> and edit the <code>DATABASE_URL</code> if needed.</li>
+      <li>Initialize the database with <code>npm run init-db</code>.</li>
       <li>Review required environment variables in <code>docs/PROD_ENV.md</code> before deploying.</li>
     </ul>
   </section>
@@ -30,6 +52,7 @@
       <li>Run <code>npm run admin</code> to launch the admin setup server (default at <code>http://localhost:4000</code>).</li>
       <li>Open <code>http://localhost:4000/admin.html</code> in your browser and enter your OnlyFans API key and OpenAI API key. Click "Save Keys" then "Start App".</li>
       <li>This will encrypt your keys into the <code>.env</code> file and start the main Express server.</li>
+      <li>For future runs, you can start the app directly with <code>npm start</code>.</li>
     </ul>
     <p>Once the server is running, open <code>http://localhost:3000</code> in your browser to access the application.</p>
   </section>
@@ -54,3 +77,4 @@
   </section>
 </body>
 </html>
+<!-- End of File – Last modified 2025-07-17 -->

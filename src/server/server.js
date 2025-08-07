@@ -21,6 +21,19 @@ import { query } from './db/db.js';
 import { schema } from './graphql/schema.js';
 import { logActivity, getActivityLog } from './activityLog.js';
 
+// Helpers for Parker name validation
+const PARKER_NAME_PATTERN = /^[\p{L}\p{M}][\p{L}\p{M}\s\-'’]*$/u;
+
+function isValidParkerName(name) {
+  return typeof name === 'string' && PARKER_NAME_PATTERN.test(name.trim());
+}
+
+function ensureValidParkerName(name, fallback = 'Fan') {
+  if (!name) return fallback;
+  const normalized = name.trim().normalize('NFC');
+  return isValidParkerName(normalized) ? normalized : fallback;
+}
+
 //
 // 1. Ensure .env exists or exit
 //
@@ -300,7 +313,11 @@ app.get('/api/fans', async (req, res) => {
        LIMIT $1`,
       [limit]
     );
-    res.json({ rows: result.rows });
+    const rows = result.rows.map(r => ({
+      ...r,
+      display_name: ensureValidParkerName(r.display_name)
+    }));
+    res.json({ rows });
   } catch {
     res.status(500).json({ error: 'fans fetch failed' });
   }
@@ -485,4 +502,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-/*  End of File – Last modified 2025-07-24 */
+/*  End of File – Last modified 2025-08-07 */

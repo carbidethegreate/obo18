@@ -636,3 +636,4 @@ Lifetime Value – total net spend by a fan.
 - 2025-08-05: Updated start-here.js to copy the project, create the database, run tests and launch the app in one step.
 - 2025-08-06: start-here.js now checks for libsodium-wrappers and prompts to run `npm install` or `npm test` if missing.
 - 2025-08-10: PUT /api/ppv/:id now accepts null scheduleDay and scheduleTime to remove scheduled sends.
+- 2025-08-07: Parker name validation now accepts Unicode letters and curly apostrophes.

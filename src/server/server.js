@@ -199,6 +199,35 @@ app.delete('/api/mass-messages/:id', withAccount(async (req, res, acct) => {
   res.json({ ok: true });
 }));
 
+app.put('/api/ppv/:id', async (req, res) => {
+  try {
+    const { scheduleDay, scheduleTime } = req.body;
+    if (scheduleDay === null && scheduleTime === null) {
+      const result = await query(
+        'UPDATE ppv SET schedule_day=NULL, schedule_time=NULL WHERE id=$1 RETURNING id, text, schedule_day AS "scheduleDay", schedule_time AS "scheduleTime"',
+        [req.params.id]
+      );
+      const ppv = result.rows[0];
+      if (ppv) {
+        ppv.scheduleDay = null;
+        ppv.scheduleTime = null;
+      }
+      res.json(ppv);
+      return;
+    }
+    if (!scheduleDay || !scheduleTime) {
+      return res.status(400).json({ error: 'scheduleDay and scheduleTime required' });
+    }
+    const result = await query(
+      'UPDATE ppv SET schedule_day=$1, schedule_time=$2 WHERE id=$3 RETURNING id, text, schedule_day AS "scheduleDay", schedule_time AS "scheduleTime"',
+      [scheduleDay, scheduleTime, req.params.id]
+    );
+    res.json(result.rows[0]);
+  } catch {
+    res.status(500).json({ error: 'ppv update failed' });
+  }
+});
+
 app.get('/api/posts', withAccount(async (_, res, acct) => {
   const result = await safeGET(`/api/${acct}/posts`);
   res.json(result);
@@ -456,4 +485,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-/*  End of File – Last modified 2025-07-20 */
+/*  End of File – Last modified 2025-07-24 */
